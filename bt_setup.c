@@ -56,10 +56,21 @@ void __parse_peer(peer_t * peer, char * peer_st){
   parse_str = malloc(strlen(peer_st)+1);
   strncpy(parse_str, peer_st, strlen(peer_st)+1);
 
+
+  /**
+   * The C library function char *strtok(char *str, const char *delim) 
+   * breaks string str into a series of tokens using the delimiter delim. 
+   * 
+   * Works as a string tokenizer returning a sub-string / string token each
+   * time it is called. 
+   **/
+
+  // This takes in the address as a xxx.xxx.xxx.xxx:xx, ip:port
+  // could be just ip... see below
   //only can have 2 tokens max, but may have less
-  for(word = strtok(parse_str, sep), i=0; 
-      (word && i < 3); 
-      word = strtok(NULL,sep), i++){
+  for(word = strtok(parse_str, sep), i=0;   //get the first token
+      (word && i < 3);  // word !=null &&  i < 3
+      word = strtok(NULL,sep), i++){ // keep returning tokens until empty
 
     printf("%d:%s\n",i,word);
     switch(i){
@@ -74,9 +85,9 @@ void __parse_peer(peer_t * peer, char * peer_st){
 
   }
 
-  if(i < 2){
+  if(i < 2){ 
     fprintf(stderr,"ERROR: Parsing Peer: Not enough values in '%s'\n",peer_st);
-    usage(stderr);
+    usage(stderr); // change print out to std, and write to it
     exit(1);
   }
 
@@ -87,8 +98,8 @@ void __parse_peer(peer_t * peer, char * peer_st){
   }
 
 
-  //calculate the id, value placed in id
-  calc_id(ip,port,id);
+  //calculate the id, value placed in id -- hashs these values using SHA1()
+  calc_id(ip,port,id); // can't understand why the id is hashed ??
 
   //build the object we need
   init_peer(peer, id, ip, port);
@@ -116,7 +127,7 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
   /* set the default args */
   bt_args->verbose=0; //no verbosity
   
-  //null save_file, log_file and torrent_file
+  //null save_file, log_file and torrent_file -- set the file to empty 
   memset(bt_args->save_file,0x00,FILE_NAME_MAX);
   memset(bt_args->torrent_file,0x00,FILE_NAME_MAX);
   memset(bt_args->log_file,0x00,FILE_NAME_MAX);
@@ -136,7 +147,7 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
 
   bt_args->id = 0;
   
-  while ((ch = getopt(argc, argv, "hp:s:l:vI:")) != -1) {
+  while ((ch = getopt(argc, argv, "hp:s:l:vI:")) != -1) { // reading the flags
     switch (ch) {
     case 'h': //help
       usage(stdout);
@@ -146,7 +157,7 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
       bt_args->verbose = 1;
       break;
     case 's': //save file
-      strncpy(bt_args->save_file,optarg,FILE_NAME_MAX);
+      strncpy(bt_args->save_file,optarg,FILE_NAME_MAX); // optarg takes in arg(3) as file to save to
       break;
     case 'l': //log file
       strncpy(bt_args->log_file,optarg,FILE_NAME_MAX);
@@ -160,10 +171,13 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
         exit(1);
       }
 
+      /**
+       * Each element is given its allocation of memory, one n_peer at a time
+       **/ 
       bt_args->peers[n_peers] = malloc(sizeof(peer_t));
 
       //parse peers
-      __parse_peer(bt_args->peers[n_peers], optarg);
+      __parse_peer(bt_args->peers[n_peers], optarg); // initialise each peer struct
       break;
     case 'I':
       bt_args->id = atoi(optarg);
@@ -176,8 +190,8 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
   }
 
 
-  argc -= optind;
-  argv += optind;
+  argc -= optind; // argc is the count of arguments passed in via the command line
+  argv += optind; // argv stands for argument vector; optind is the index of that vector
 
   if(argc == 0){
     fprintf(stderr,"ERROR: Require torrent file\n");

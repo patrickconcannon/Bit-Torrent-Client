@@ -58,7 +58,7 @@ int init_peer(peer_t *peer, char * id, char * ip, unsigned short port){
     exit(1);
   }
   
-  //zero out the sock address
+  //zero out the sock address -- could also use memset here: would it be quicker?
   bzero(&(peer->sockaddr), sizeof(peer->sockaddr));
       
   //set the family to AF_INET, i.e., Iternet Addressing
