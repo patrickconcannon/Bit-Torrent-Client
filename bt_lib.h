@@ -45,10 +45,15 @@
 /*size (in bytes) of id field for peers*/
 #define ID_SIZE 20
 
-
+/** 
+ * Undersatnding a better understanding of: (1) struct definition, (2) struct declaration, and (3) typedef
+ * https://stackoverflow.com/questions/17720223/c-typedef-struct-name-vs-typedef-struct-name
+ **/
 //holds information about a peer
 typedef struct peer{
-  unsigned char id[ID_SIZE]; //the peer id
+  /* https://stackoverflow.com/questions/13642381/c-c-why-to-use-unsigned-char-for-binary-data */
+  unsigned char id[ID_SIZE]; //the peer id -- same as using uint8_t
+
   unsigned short port; //the port to connect n
   struct sockaddr_in sockaddr; //sockaddr for peer
   int choked; //peer choked?
@@ -82,7 +87,6 @@ typedef struct {
   /*set once torrent is parse*/
   bt_info_t * bt_info; //the parsed info for this torrent
   
-
 } bt_args_t;
 
 
@@ -90,7 +94,7 @@ typedef struct {
  * Message structures
  **/
 
-typedef struct {
+typedef struct { // https://stackoverflow.com/questions/24933242/when-to-use-bit-fields-in-c
   char * bitfield; //bitfield where each bit represents a piece that
                    //the peer has or doesn't have
   size_t size;//size of the bitfiled
@@ -113,7 +117,7 @@ typedef struct{
 typedef struct bt_msg{
   int length; //length of remaining message, 
               //0 length message is a keep-alive message
-  unsigned char bt_type;//type of bt_mesage
+  unsigned char bt_type; //type of bt_mesage
 
   //payload can be any of these
   union { 

@@ -17,7 +17,8 @@
 #include "bt_setup.h"
 
 
-
+/*calc the peer id based on the string representation of the ip and
+  port*/
 void calc_id(char * ip, unsigned short port, char *id){
   char data[256];
   int len;
@@ -48,13 +49,19 @@ int init_peer(peer_t *peer, char * id, char * ip, unsigned short port){
     
   struct hostent * hostinfo;
   //set the host id and port for referece
-  memcpy(peer->id, id, ID_SIZE);
+  memcpy(peer->id, id, ID_SIZE); // id is a char[] here so we use memcpy
   peer->port = port;
     
+
+  /**
+     The gethostbyname() function returns a structure of type hostent for
+       the given host name.  Here name is either a hostname or an IPv4
+       address in standard dot notation
+   */  
   //get the host by name
-  if((hostinfo = gethostbyname(ip)) ==  NULL){
-    perror("gethostbyname failure, no such host?");
-    herror("gethostbyname");
+  if((hostinfo = gethostbyname(ip)) ==  NULL){ // from ip you can initialise the hostinfo struct
+    perror("gethostbyname failure, no such host?"); // prints current value of globabl variable "errno"
+    herror("gethostbyname"); // prints a specific error related to unknown value returned by gethostbyname
     exit(1);
   }
   
@@ -65,12 +72,13 @@ int init_peer(peer_t *peer, char * id, char * ip, unsigned short port){
   peer->sockaddr.sin_family = AF_INET;
     
   //copy the address to the right place
-  bcopy((char *) (hostinfo->h_addr), 
+  bcopy((char *) (hostinfo->h_addr), //from the hostinfo struct you can get the s_addr
         (char *) &(peer->sockaddr.sin_addr.s_addr),
         hostinfo->h_length);
     
   //encode the port
-  peer->sockaddr.sin_port = htons(port);
+  //htons convert 16 and 32 bit quantities between "network byte order" and "host byte order".
+  peer->sockaddr.sin_port = htons(port); 
   
   return 0;
 
@@ -86,6 +94,7 @@ void print_peer(peer_t *peer){
   int i;
 
   if(peer){
+    //inet_ntoa converts a presentation format addr to network format
     printf("peer: %s:%u ",
            inet_ntoa(peer->sockaddr.sin_addr),
            peer->port);
