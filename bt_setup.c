@@ -157,7 +157,11 @@ void parse_args(bt_args_t * bt_args, int argc,  char * argv[]){
       bt_args->verbose = 1;
       break;
     case 's': //save file
-      strncpy(bt_args->save_file,optarg,FILE_NAME_MAX); // optarg takes in arg(3) as file to save to
+      /**
+       * The optarg() function takes in the next command-line arg.
+       * In this case will be the file to be saved into
+       **/ 
+      strncpy(bt_args->save_file,optarg,FILE_NAME_MAX);
       break;
     case 'l': //log file
       strncpy(bt_args->log_file,optarg,FILE_NAME_MAX);
