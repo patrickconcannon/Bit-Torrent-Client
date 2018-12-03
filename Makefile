@@ -1,22 +1,24 @@
 CC=gcc
-CPFLAGS=-g -Wall
-LDFLAGS= -lcrypto
+CPFLAGS=-g -Wall # C preprocessor flag
+LDFLAGS= -lcrypto # linker flags
+
+# For more info on how make files work -- see below
+# https://www.gnu.org/software/make/manual/html_node/index.html#SEC_Contents
+
+SRC= bencode.c  bt_client.c bt_lib.c bt_setup.c  # variable to keep track of source filees
+OBJ=$(SRC:.c=.o) # and object files
+BIN=bt_client # the binary to be created
+
+all: $(BIN) # tag for all files
+
+$(BIN): $(OBJ) # rule for object files
+	$(CC) $(CPFLAGS) $(LDFLAGS) -o $(BIN) $(OBJ) # how to compile this binary 
 
 
-SRC= bencode.c  bt_client.c bt_lib.c bt_setup.c 
-OBJ=$(SRC:.c=.o)
-BIN=bt_client
+%.o:%.c # 
+	$(CC) -c $(CPFLAGS) -o $@ $<  # how to compile; two at end stand for variables left and right of ':' 
 
-all: $(BIN)
+$(SRC): # tag for what to do with src files
 
-$(BIN): $(OBJ)
-	$(CC) $(CPFLAGS) $(LDFLAGS) -o $(BIN) $(OBJ) 
-
-
-%.o:%.c
-	$(CC) -c $(CPFLAGS) -o $@ $<  
-
-$(SRC):
-
-clean:
+clean: # what the command 'make clean' will run  
 	rm -rf $(OBJ) $(BIN)
