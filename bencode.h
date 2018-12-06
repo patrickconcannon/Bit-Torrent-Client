@@ -31,7 +31,13 @@ typedef enum {
 	BE_DICT,
 } be_type;
 
-/*predefined for compiler checks*/
+/**
+ * Predefined for compiler checks.
+ * This is an example of "forward declaration". They 
+ * must be declared here because they are used in the 
+ * structs below before they are implemented properly.
+ */
+
 struct be_dict;
 struct be_node;
 

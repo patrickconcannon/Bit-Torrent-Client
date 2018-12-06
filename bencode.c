@@ -32,7 +32,17 @@
 
 #include "bencode.h"
 
-//allocates memory of the right size
+/**
+ *  Allocates memory of the right size to which ever be_type passed in
+ * 	e.g. int, string, list, etc.
+ * 
+ * 	pointers automatically convert to 'true'in statements like the one below 
+ *  There is an error check here as malloc can fail. If it does you have a memory issue
+ * 
+ *  if it was successful, it's zeroing out the struct then setting a field
+ * 
+ * 	In C++ this would essentially be a constructor.
+ **/
 be_node *be_alloc(be_type type)
 {
 	be_node *ret = malloc(sizeof(*ret));
@@ -47,7 +57,7 @@ be_node *be_alloc(be_type type)
  long long _be_decode_int(const char **data, long long *data_len)
 {
 	char *endp;
-	long long ret = strtoll(*data, &endp, 10);
+	long long ret = strtoll(*data, &endp, 10); // converts string to long long
 	*data_len -= (endp - *data);
 	*data = endp;
 	return ret;
