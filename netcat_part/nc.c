@@ -13,11 +13,17 @@ void createClient(nc_args_t *);
 void createServer(nc_args_t *);
 
 
+/*
+	At the moment, the client is reading a text and sending it to the server
+	which then storing it. What I want is for the client to query the server
+	with an offset and the server then writes from the offset to the client
+	until the file is finished
+*/
 int main(int argc, char *argv[]) {
     
     nc_args_t nc_args;
     parse_args(&nc_args, argc, argv);
-
+	
     if ((&nc_args)->listen == 1) {
 		int retval;
 		if ( ( retval = checkport( (&nc_args)->port ) ) == 0) {

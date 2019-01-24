@@ -89,6 +89,7 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
 				strncpy(nc_args->message, optarg, strlen(optarg) + 1);
 				break;
 			default:
+				usage(stdout);
 				fprintf(stderr,"ERROR: Unknown option '-%c'\n",ch);
 				exit(1);
 		}
