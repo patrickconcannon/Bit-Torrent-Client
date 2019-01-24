@@ -2,7 +2,7 @@
 #ifndef NETCAT_PART
 #define NETCAT_PART
 
-
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -34,5 +34,8 @@ int Listen(int fd, int backlog);
 ssize_t Write(int fd, void *ptr, size_t nbytes);
 int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 void Close(int fd);
+void parse_args(nc_args_t *nc_args, int argc, char *argv[]);
+void usage(FILE *file);
+int checkport(unsigned short p);
 
 #endif

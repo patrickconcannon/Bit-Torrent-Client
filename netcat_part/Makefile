@@ -13,4 +13,4 @@ nc: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean: 
-		rm -f $(OBJ)
+		rm -f $(OBJ) nc 
