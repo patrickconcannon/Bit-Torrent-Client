@@ -5,14 +5,14 @@ void createServer(nc_args_t *nc_args) {
     
     int serverSockfd, newSocketfd;
     int listenStatus;
-    unsigned char buffer[53]; // BUF_LEN = 1024
+    unsigned char buffer[BUF_LEN]; // BUF_LEN = 1024
     ssize_t bytesWritten = 0;
     FILE *fp;
 
     struct sockaddr_in clientAddr;
     unsigned int clientAddrLength = sizeof(clientAddr);
 
-    memset(buffer, 0, 53); // zero it out
+    memset(buffer, 0, BUF_LEN); // zero it out
 
     // Create Socket
     serverSockfd = Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -25,15 +25,16 @@ void createServer(nc_args_t *nc_args) {
 	
     
     // Open file 
-	fp = fopen(nc_args->serverFilename, "r");
+	fp = fopen(nc_args->serverFilename, "rb");
 	if (fp != NULL) {
         // check for offset
-        if(nc_args->offset != 0){
-            fseek(fp,nc_args->offset,SEEK_SET);
-        }
+       if(nc_args->offset != 0){
+            fseek(fp,(sizeof(BUF_LEN)*nc_args->offset),SEEK_SET);
+       }
         while(fread(buffer, sizeof(BUF_LEN), 1, fp)) {
             bytesWritten += Write(newSocketfd, buffer, BUF_LEN);
         }
+        printf("Server: %ld bytes sent to client\n", bytesWritten);
 	}else {
 		err_sys("ERROR: File could not be opened");
 	}
