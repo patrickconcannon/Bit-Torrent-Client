@@ -5,14 +5,14 @@ void createServer(nc_args_t *nc_args) {
     
     int serverSockfd, newSocketfd;
     int listenStatus;
-    char input[BUF_LEN];
+    unsigned char buffer[53]; // BUF_LEN = 1024
     ssize_t bytesWritten = 0;
     FILE *fp;
 
     struct sockaddr_in clientAddr;
     unsigned int clientAddrLength = sizeof(clientAddr);
 
-    memset(input, 0, BUF_LEN);
+    memset(buffer, 0, 53); // zero it out
 
     // Create Socket
     serverSockfd = Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -20,36 +20,33 @@ void createServer(nc_args_t *nc_args) {
     Bind(serverSockfd, (struct sockaddr *) &nc_args->servAddr, sizeof(nc_args->servAddr));
     // Assert socket as listener
     listenStatus = Listen(serverSockfd, MAXQUEUE);
-    // server sets up a new socket to exchange data with client
+    // set up a client socket
     newSocketfd = Accept(serverSockfd, (struct sockaddr *) &clientAddr, &clientAddrLength);
 	
     
     // Open file 
 	fp = fopen(nc_args->serverFilename, "r");
 	if (fp != NULL) {
+        // check for offset
         if(nc_args->offset != 0){
-            fseek(fp,sizeof(char)+nc_args->offset,SEEK_SET);
+            fseek(fp,nc_args->offset,SEEK_SET);
         }
-			while(fread(input, sizeof(char), BUF_LEN, fp)) {
-				bytesWritten += Write(newSocketfd, input, strlen(input));
-			}
+        while(fread(buffer, sizeof(BUF_LEN), 1, fp)) {
+            bytesWritten += Write(newSocketfd, buffer, BUF_LEN);
+        }
 	}else {
 		err_sys("ERROR: File could not be opened");
 	}
-
-	if (bytesWritten < 0 || bytesWritten == 0)
+	if (bytesWritten < 0 || bytesWritten == 0) {
 		perror("ERROR: Nothing written to file");
-		
+    }    
 
-    // Reset file pointer
-    rewind(fp);
-    // Close file
+	// Reset file pointer
+	fseek(fp, 0, SEEK_SET);
+    // Close file and sockets
     fclose(fp);
-    
-    // close the sockets
     close(newSocketfd);
     close(serverSockfd);
 
     return;
-    
 }
