@@ -13,4 +13,4 @@ nc: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean: 
-		rm -f $(OBJ) nc 
+		rm -f $(OBJ) nc testdata/results.txt

@@ -69,7 +69,7 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
     nc_args->message_mode = 0;
  
     while ((ch = getopt(argc, argv, "lm:hvp:n:o:")) != -1) {			
-		switch (ch) {
+		switch (ch) { 
 			case 'l':
 				nc_args->listen = 1;
 				break;

@@ -17,12 +17,11 @@ int main(int argc, char *argv[]) {
     
     nc_args_t nc_args;
     parse_args(&nc_args, argc, argv);
-	
-    if ((&nc_args)->listen == 1) {
-		createServer(&nc_args);
+
+    if (nc_args.listen == 1) {
+		  createServer(&nc_args);
     } else{
-		createClient(&nc_args);
-	}
-    return 0;
-    
+		  createClient(&nc_args);
+  	}
+    return 0; 
 }
