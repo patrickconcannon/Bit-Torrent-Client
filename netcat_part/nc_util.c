@@ -70,12 +70,17 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
  
     while ((ch = getopt(argc, argv, "lm:hvp:n:o:")) != -1) {			
 		switch (ch) { 
+			case 'h':
+				usage(stdout);
+				break;
 			case 'l':
 				nc_args->listen = 1;
 				break;
 			case 'o':
 				nc_args->offset = atoi(optarg);
 				break;
+			case 'p':
+				nc_args->port = atoi(optarg);
 			case 'n':
 				nc_args->n_bytes = atoi(optarg);
 				if (nc_args->n_bytes == 0) {
@@ -99,20 +104,18 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
     argv += optind;
     
     if (argc < 2 && nc_args->message_mode == 0) {
-		fprintf(stderr, "ERROR: Require IP and file\n");
-		exit(1);
+		err_sys("ERROR: Require IP and file\n");
     } else if (argc != 1 && nc_args->message_mode == 1) {
-		fprintf(stderr, "ERROR: Require IP to send/recv from when in message mode\n");
-		exit(1);
+		err_sys("ERROR: Require IP to send/recv from when in message mode\n");
     }
  
     if( !(hostinfo = gethostbyname(argv[0])) ){
-		fprintf(stderr,"ERROR: Invalid host name '%s' specified\n", argv[0]);
-		exit(1);
+		err_sys("ERROR: Invalid host name specified\n");
     }
     nc_args->servAddr.sin_family = hostinfo->h_addrtype;
     memmove( (char *) &(nc_args->servAddr.sin_addr.s_addr), (char *) hostinfo->h_addr, hostinfo->h_length );	
-    nc_args->servAddr.sin_port = htons(nc_args->port);			
+	// Set port
+	nc_args->servAddr.sin_port = htons(nc_args->port);		
  
 
     if (nc_args->message_mode != 1) {
@@ -120,9 +123,7 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
 			// store server's output file name
 			nc_args->serverFilename = (char *) malloc(strlen(argv[1]) + 1);
 			strncpy( nc_args->serverFilename, argv[1], (strlen(argv[1]) + 1) );
-		}	
-
-		else {
+		}else {
 			// store client's input file name
 			nc_args->clientFilename = (char *) malloc(strlen(argv[1]) + 1);
 			strncpy( nc_args->clientFilename, argv[1], (strlen(argv[1]) + 1) );
@@ -133,12 +134,33 @@ void parse_args(nc_args_t *nc_args, int argc, char *argv[]){
 
 void usage(FILE *file){
     fprintf(file,
-	    "netcat_part [OPTIONS]dest_ip [file] \n"
-	    "\t -m \"MSG\"   \t\t Send the message specified on the command line. \n"
-	    "                \t\t Warning: if you specify this option, you do not specify a file. \n"
-	    "\t -n bytes     \t\t Number of bytes to send, defaults whole file\n"
-	    "\t -o offset    \t\t Offset into file to start sending\n"
-	    "\t -l           \t\t Listen on port instead of connecting and write output to file\n"
-	    "                \t\t and dest_ip refers to which ip to bind to (dflt: localhost)\n"
+	    "netcat_part [OPTIONS] dest_ip [file] \n"
+		"\t -h           \t\t Print this help screen \n"
+		"\t -p port      \t\t Set the port to connect on (dflt: 6767) \n" 
+	    "\t -m message   \t\t Send message to server\n"
+		"\t              \t\t change this to maintain that allows for \n"
+		"\t              \t\t the continuation of the file transfer"
+	    "\t -n bytes     \t\t Number of bytes to send - defaults to entire file \n"
+	    "\t -o offset    \t\t Offset into file to begin sending \n"
+	    "\t -l           \t\t Create listen server with specified address \n"
 	    );
 }
+
+// void usage_client(FILE *file){
+//     fprintf(file,
+// 	    "netcat_part [OPTIONS] dest_ip [file] \n"
+// 		"\t -h           \t\t Display this help message. \n"
+// 	    "\t -m message   \t\t Send message to server. \n"
+// 	    "\t -n bytes     \t\t Number of bytes to send - defaults to entire file. \n"
+// 	    "\t -o offset    \t\t Choose offset from where to begin sending. \n"
+// 	    );
+// }
+
+// void usage_server(FILE *file){
+//     fprintf(file,
+// 	    "netcat_part [OPTIONS] dest_ip [file] \n"
+// 		"\t -h           \t\t Display this help message. \n"
+// 		"\t -p port      \t\t Specify port. \n"  // server sets the port for listening
+// 	    "\t -l ipaddr    \t\t Create listen server with specified address. \n"
+// 	    );
+// }
