@@ -1,24 +1,16 @@
 import csv
-# import numpy as np
 import matplotlib.pyplot as plt
-
 import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
+
 from random import randint
-
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111)
-
-
 from math import sin, cos, sqrt, atan2, radians
-
 
 ZERO_DIST = 0.0
 TRIM = 10
 
-	# In order to remove the outliers, you can look at the standard dev and the mean distance between points
-	# as you are looking for erreous points
+## https://repl.it/repls/AnxiousPrivateHashfunction
+
+# In order to highlight outliers, we compare it against the median absolute deviation(MAD) 
 class Point:
   def __init__(self, lt, ln, timestamp):
     self.lt = lt
@@ -124,6 +116,9 @@ class PointSet:
       y.append(pt.ln)	
       x.append(pt.lt)
     ax.plot(x,y)
+    mpl.use('Agg')
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111)
     fig.savefig('graph.png')
     # plt.scatter(x,y) # :200 or :60 will show how it loops back on itself
     # plt.plot(x,y) # with guiding line
@@ -134,18 +129,9 @@ pointSet = PointSet(CSV_FILE)
 
 pointSet.checkTime()
 pointSet.checkDistances()
-pointSet.removeOutliers() # still dealing with distances
-#print(len(pointSet.pointSet))
+pointSet.removeOutliers() 
 #pointSet.plotPoints() 
 
-# So when checking distances that when I have to put in the checek
-
-
-# Once you've settled on the Mean value to use, create a new list with values (x - mean)**2 
-# Then add all of the values contained in this list
-# Then divide by (list - 1) -- this will give the variance
-# The square root of which is the +/- value by which most values are off by
-# 
 # Finally, you can use Chebyshev's Theorem to find the number of standard deviations (k) that values 
 # are from the mean. So with this you can say that x% of points are within y distance of mean. If you 
 # plot and look at the values you can check to see what values are the standard ones
