@@ -4,9 +4,10 @@
 
 void createClient(nc_args_t *nc_args) {			
     
-    int clientSockfd=0, count=1;
+    int clientSockfd=0, connfd=0;
     unsigned char buffer[BUF_LEN];
-    ssize_t bytesWritten = 0;
+    unsigned char buffer1[32] = "Hello, world";
+    ssize_t bytesRead, totalBytesRead = 0;
     FILE *fp;
 
     bzero(buffer, BUF_LEN);
@@ -16,37 +17,24 @@ void createClient(nc_args_t *nc_args) {
     // Connect
     Connect(clientSockfd, (struct sockaddr *) &nc_args->servAddr, sizeof(nc_args->servAddr));
 
+    Write(connfd, buffer1, 32);
     // Open file 
-    fp = fopen(nc_args->clientFilename, "rb");
+    fp = fopen(nc_args->clientFilename, "w+");
 	
-    if (fp != NULL) {
-        // check for offset
-        if(nc_args->offset != 0){
-            fseek(fp, nc_args->offset, SEEK_SET);
-        } 
-        if(nc_args->n_bytes != 0){ // check if n_bytes specified
-            count=nc_args->n_bytes;
-        }
-        while(fread(buffer, BUF_LEN, count, fp)) { 
-            bytesWritten += Write(clientSockfd, buffer, BUF_LEN);
-            if(nc_args->n_bytes){ //check for remaining bytes
-                count--;
-            }
-        }
-        printf("Client: %ld bytes sent to server\n", bytesWritten);
-    }else {
-        err_sys("ERROR: File could not be opened");
+    // read data from client and write to file
+    while((bytesRead = read(clientSockfd, buffer, BUF_LEN)) != 0 ) {
+        totalBytesRead += bytesRead;
+        fwrite(buffer, BUF_LEN, 1, fp); 
+        bzero(buffer, BUF_LEN);
     }
-	
-    if (bytesWritten < 0 || bytesWritten == 0) {
-        perror("ERROR: Nothing written to file");
-    }    
-    
+    printf("Client: %ld bytes written to file '%s'\n", totalBytesRead, nc_args->clientFilename);
+
     // Reset file pointer
     fseek(fp, 0, SEEK_SET);
+    totalBytesRead = 0;
     // Close file and socket
     fclose(fp);
-    Close(clientSockfd);
+    close(clientSockfd);
     
     return;
 }
