@@ -77,23 +77,21 @@ class PointSet:
     #x = [s for s in x if s.isdigit()]
     return float(sum(x)/(max(len(x),1)))
 
-  def getMean(self):
-    sd = sorted(self.distances) 			  # sorts list of distances low to high
-    td = sd[TRIM:-TRIM] 	# trim bottom 10 values
-    avg_d = float(sum(sd)/(max(len(sd),1))) 	      # mean
-    avg_t = float(sum(td)/(max(len(td),1)))       # trimmed_mean distance
-    mid = abs(len(td)/2)
-    #self.pointSet = self.pointSet[27:147] #fix
-
-  def getStandDev(self):
-    mean = getMean()
-    stand_dev = []
+  def median(self, x):
+    mid = int(abs(len(x)/2))
+    if len(x) % 2 == 0:
+      return int(avg(x[mid-1],x[mid+1]))
+    else:  
+      return x[mid+1]
+  # Get absolute median deviation - more robust to outliers
+  # might need to write Median so as not to depend on package
+  def getMAD(self):
+    med = self.median(self.distances)
+    mad = []
     variance = 0
     for d in range(self.distances):
-      val = (d - mean)**2
-      stand_dev.append(val)
-      variancee += val
-    return sqrt(variance/len(stand_dev)-1)
+      mad.append(abs(d - med))
+    return med(mad)
 
   # Check and remove points with erroneous timestamps
   # Assuming timestamps should always be increasing
@@ -108,6 +106,16 @@ class PointSet:
       temp.append(pt)
     self.pointSet = temp
 
+  def removeOutliers(self):
+    for pt in (self.pointSet):
+      mad = self.getMAD()
+      median = median(self.distances)
+      count = 0
+      if pt.distance >= median-mad and pt.distance <= median+mad :
+        #It's within the standard deviation
+        count += 1
+    print(count)
+
   # Plot points to show path
   def plotPoints(self):
     x=[]
@@ -120,22 +128,6 @@ class PointSet:
     # plt.scatter(x,y) # :200 or :60 will show how it loops back on itself
     # plt.plot(x,y) # with guiding line
     # plt.show()
-
-  def removeOutliers(self):
-    if len(self.pointSet) == 0:
-      return None
-    temp = []
-    for i in range(len(self.pointSet)-1):
-      d = self.calcDist(self.pointSet[i].lt,self.pointSet[i].ln,self.pointSet[i+1].lt,self.pointSet[i+1].ln)
-
-      m = getMean()
-      sd = getStandDev()
-      r1 = m - sd
-      r2 = m + sd
-      
-      per = ((1 / (m/sd)) * 100) # percentage of distances 
-      # the lower per is the closer the distances are to the sd
-
 
 CSV_FILE = 'data_points.csv'
 pointSet = PointSet(CSV_FILE)
