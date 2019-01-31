@@ -3,9 +3,6 @@ import pointSet
 
 class TestPointSet(unittest.TestCase):
 
- 
-  # testPointSet = pointSet.PointSet()
-
   def test_calcDist(self):
     TEST_FILE = 'test_data/test_data.csv'
     testPointSet = pointSet.PointSet()
@@ -22,7 +19,7 @@ class TestPointSet(unittest.TestCase):
     self.assertEqual(0.023947627054866416, testPointSet.getMAD())
 
 
-  def test_getTimes(self):
+  def test_checkTimes(self):
     TEST_FILE = 'test_data/test_data.csv'
     testPointSet = pointSet.PointSet()
     testPointSet.loadData(TEST_FILE)

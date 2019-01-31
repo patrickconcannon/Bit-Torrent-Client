@@ -25,11 +25,11 @@ All Formulas referenced from:
   as it is more robust to outliers
 
 -  Chebyshev's Theorem uses a constant k to tell us that at 
-  least k% of data lies within x% of the Median 
+  least k%  of data lies within k%  of the Median 
   
 """
 
-CHEBYSHEV_CONST = 3
+CHEBYSHEV_CONST = 3 
 RAD_EARTH = 6373.0 # approximate radius of earth in km
 ZERO_DIST = 0.0
 
@@ -47,6 +47,7 @@ class PointSet:
         reader = csv.reader(f)
         for row in reader:
           self.pointSet.append(Point(float(row[0]),float(row[1]),float(row[2])))
+
 
   def getLength(self):
         return len(self.pointSet)
@@ -87,17 +88,16 @@ class PointSet:
       # skip duplicates e.g. points where no distance is covered 
       if d == ZERO_DIST:
         continue
-      # remove duplicates from pointSet 
+      # keep track of valid points
       temp.append(self.pointSet[i])
       # store distance to next point within Point obj
       self.pointSet[i].distance = d
-      # store all distances betweeen points within PointSet
+      # store all distances between points within PointSet
       self.distances.append(d)
     self.pointSet = temp
 
 
-  # Assumes timestamps should always be increasing
-  # Remove those which aren't
+  # Remove timestamps which aren't consecutive
   def checkTimes(self):
     cur_low=0
     temp=[]
@@ -111,14 +111,15 @@ class PointSet:
 
 
   # Remove outlying points
-  # Checks for correct time, distance and if within MAD range of median
   def removeOutliers(self):
     self.checkTimes()
     self.checkDistances()
+
     # Will allow us to check if 1 - 1 / k**2 are within MAD range # of median
     # e.g if k = 2, 1 - 0.25 = .75
     # This ensures (approx.) 75% are within range 
     mad = self.getMAD() * CHEBYSHEV_CONST 
+
     med_dist = median(self.distances)
     temp=[]
     for pt in self.pointSet:
@@ -128,28 +129,25 @@ class PointSet:
     self.pointSet = temp
 
 
-  # Plot points to show path
+  # Plot points to show journey
   def plotPoints(self):
     x=[]
     y=[]
     for pt in self.pointSet:
       y.append(pt.ln)	
       x.append(pt.lt)
-    # Options for display of graph
+    # set options and plot
     mpl.use('Agg')
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111)
-    # Plot graph
     ax.plot(x,y)
-    # Save graph as image
+    # Save copy of graph
     timestamp = datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")
     fig.savefig('graphs/Graph-' + timestamp + '.png')
   
 
   # Print details of algorithm run
-  def printPoints(self):
-    print("Count: " + str(self.getLength()))
-    x = ((self.getLength()/227) * 100)
-    print("Percentage: {:.2f}%".format(x))
-    # possibly put in original count
-    # and removed count.
+  def printPoints(self): # change to printDetails() and add more info
+    print("Current count: " + str(self.getLength()))
+    # x = ((self.getLength()/227) * 100)
+    # print("Percentage: {:.2f}%".format(x))
