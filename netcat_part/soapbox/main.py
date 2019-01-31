@@ -5,8 +5,8 @@ def main():
   ps = pointSet.PointSet()
   ps.loadData(CSV_FILE)
   ps.removeOutliers() # take in constant here 
-  #ps.plotPoints() 
-  ps.printPoints()
+  ps.plotPoints() 
+  # ps.printPoints()
 
 if __name__ == '__main__':
     main()

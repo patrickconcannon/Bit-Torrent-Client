@@ -4,8 +4,9 @@ from math import sin, cos, sqrt, atan2, radians
 
 import csv
 import datetime
-import matplotlib.pyplot as plt
 import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 """
 Author: Patrick Concannon
@@ -149,5 +150,7 @@ class PointSet:
   # Print details of algorithm run
   def printPoints(self): # change to printDetails() and add more info
     print("Current count: " + str(self.getLength()))
+    for pt in self.pointSet:
+          print(str(pt.lt)+" "+str(pt.ln))
     # x = ((self.getLength()/227) * 100)
     # print("Percentage: {:.2f}%".format(x))
