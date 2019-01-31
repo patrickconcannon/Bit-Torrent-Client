@@ -3,21 +3,31 @@ from statistics import median
 from math import sin, cos, sqrt, atan2, radians
 
 import csv
+import datetime
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+"""
+Author: Patrick Concannon
+
+Problem: Develop an algorithm that, given a series of data
+points (latitude,longitude,timestamp) for a car journey from
+A->B,# which will disregard potentially erroneous points
+(present in #the dataset).
+
+Date Modified: 31 Jan, 2019
 
 
-# All Formulas referenced from: 
-#   http://www.ltcconline.net/greenl/courses/201/descstat/mean.htm
-#   
-#   Median Absolute Derivation(MAD) used as it is
-#   as it is more robust to outliers
-#
-#   Chebyshev's Theorem used to tell us that at 
-#   least x points lies within x% of the Median Absolute
-#   Derivation
-#
+All Formulas referenced from: 
+-  http://www.ltcconline.net/greenl/courses/201/descstat/mean.htm
+ 
+-  Median Absolute Derivation(MAD) used as it is
+  as it is more robust to outliers
+
+-  Chebyshev's Theorem uses a constant k to tell us that at 
+  least k% of data lies within x% of the Median 
+  
+"""
 
 CHEBYSHEV_CONST = 3
 RAD_EARTH = 6373.0 # approximate radius of earth in km
@@ -26,25 +36,24 @@ ZERO_DIST = 0.0
 
 class PointSet:
   def __init__(self):
-    self.pointSet = []
-    self.distances = []
+    self.pointSet=[]
+    self.distances=[]
 
 
   def loadData(self, fileName):
     if fileName:
-      # Load points from file
+      # Load points data from file
       with open(fileName, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
           self.pointSet.append(Point(float(row[0]),float(row[1]),float(row[2])))
-
 
   def getLength(self):
         return len(self.pointSet)
 
 
   # Returns distance between two points
-  def getDistances(self, lt1,ln1,lt2,ln2):
+  def calcDist(self, lt1,ln1,lt2,ln2):
     # Convert to radians
     lat1 = radians(lt1)
     lon1 = radians(ln1)
@@ -59,9 +68,9 @@ class PointSet:
     return RAD_EARTH * c
 
 
-  # Get Median Absolute Deviation(MAD)
+  # Gets Median Absolute Deviation(MAD)
   def getMAD(self):
-    med_dist = []
+    med_dist=[]
     med = median(self.distances)
     for d in self.distances:
       med_dist.append(abs(d - med))
@@ -70,10 +79,10 @@ class PointSet:
 
   # Returns a list of the distances between points
   def checkDistances(self):  
-    if len(self.pointSet) == 0:
+    if self.getLength() == 0:
           return None
-    temp = []
-    for i in range(len(self.pointSet)-1):
+    temp=[]
+    for i in range(self.getLength()-1):
       d = self.calcDist(self.pointSet[i].lt,self.pointSet[i].ln,self.pointSet[i+1].lt,self.pointSet[i+1].ln)
       # skip duplicates e.g. points where no distance is covered 
       if d == ZERO_DIST:
@@ -90,8 +99,8 @@ class PointSet:
   # Assumes timestamps should always be increasing
   # Remove those which aren't
   def checkTimes(self):
-    cur_low = 0
-    temp = []
+    cur_low=0
+    temp=[]
     for pt in self.pointSet:
       current = pt.timestamp
       if (current < cur_low): 
@@ -111,7 +120,7 @@ class PointSet:
     # This ensures (approx.) 75% are within range 
     mad = self.getMAD() * CHEBYSHEV_CONST 
     med_dist = median(self.distances)
-    temp = []
+    temp=[]
     for pt in self.pointSet:
       if pt.distance > (med_dist-mad) and pt.distance < (med_dist+mad):
         temp.append(pt)
@@ -139,5 +148,8 @@ class PointSet:
 
   # Print details of algorithm run
   def printPoints(self):
-    print("Count: " + str(len(self.pointSet)))
-    print("Percentage: " + str((len(self.pointSet)/227) * 100 ) + "%")
+    print("Count: " + str(self.getLength()))
+    x = ((self.getLength()/227) * 100)
+    print("Percentage: {:.2f}%".format(x))
+    # possibly put in original count
+    # and removed count.
