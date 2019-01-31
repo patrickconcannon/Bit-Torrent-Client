@@ -10,15 +10,16 @@ import matplotlib as mpl
 
 # All Formulas referenced from: 
 #   http://www.ltcconline.net/greenl/courses/201/descstat/mean.htm
-#   Median Absolute Deviation(MAD) used as it is
+#   
+#   Median Absolute Derivation(MAD) used as it is
 #   as it is more robust to outliers
+#
+#   Chebyshev's Theorem used to tell us that at 
+#   least x points lies within x% of the Median Absolute
+#   Derivation
+#
 
-
-# Chebyshev's Theorem 
-#   This tell us that at least x of the data lies within x%
-#   of the median.
 CHEBYSHEV_CONST = 3
-
 RAD_EARTH = 6373.0 # approximate radius of earth in km
 ZERO_DIST = 0.0
 
@@ -27,9 +28,6 @@ class PointSet:
   def __init__(self):
     self.pointSet = []
     self.distances = []
-
-  def getLength(self):
-    return len(self.pointSet)
 
 
   def loadData(self, fileName):
@@ -41,8 +39,12 @@ class PointSet:
           self.pointSet.append(Point(float(row[0]),float(row[1]),float(row[2])))
 
 
+  def getLength(self):
+        return len(self.pointSet)
+
+
   # Returns distance between two points
-  def calcDist(self, lt1,ln1,lt2,ln2):
+  def getDistances(self, lt1,ln1,lt2,ln2):
     # Convert to radians
     lat1 = radians(lt1)
     lon1 = radians(ln1)
@@ -55,6 +57,15 @@ class PointSet:
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
     return RAD_EARTH * c
+
+
+  # Get Median Absolute Deviation(MAD)
+  def getMAD(self):
+    med_dist = []
+    med = median(self.distances)
+    for d in self.distances:
+      med_dist.append(abs(d - med))
+    return median(med_dist)
 
 
   # Returns a list of the distances between points
@@ -74,15 +85,6 @@ class PointSet:
       # store all distances betweeen points within PointSet
       self.distances.append(d)
     self.pointSet = temp
-
-
-  # Get Median Absolute Deviation(MAD)
-  def getMAD(self):
-    med_dist = []
-    med = median(self.distances)
-    for d in self.distances:
-      med_dist.append(abs(d - med))
-    return median(med_dist)
 
 
   # Assumes timestamps should always be increasing
@@ -139,13 +141,3 @@ class PointSet:
   def printPoints(self):
     print("Count: " + str(len(self.pointSet)))
     print("Percentage: " + str((len(self.pointSet)/227) * 100 ) + "%")
-
-
-
-
-CSV_FILE = 'data/data_points.csv'
-pointSet = PointSet()
-pointSet.loadData(CSV_FILE)
-#pointSet.removeOutliers() # take in constant here 
-#pointSet.plotPoints() 
-#pointSet.printPoints()
