@@ -26,19 +26,21 @@ All Formulas referenced from:
   as it is more robust to outliers
 
 -  Chebyshev's Theorem uses a constant k to tell us that at 
-  least k%  of data lies within k%  of the Median 
+  least k%  of data lies within k%  of the Median. By increasing
+  and decreasing it it will allow control over the optimal distance
+  between points
   
 """
 
-CHEBYSHEV_CONST = 3 
+CHEBYSHEV_CONST = 20
 RAD_EARTH = 6373.0 # approximate radius of earth in km
 ZERO_DIST = 0.0
 
 
 class PointSet:
   def __init__(self):
-    self.pointSet=[]
-    self.distances=[]
+    self.pointSet = []
+    self.distances = []
 
 
   def loadData(self, fileName):
@@ -55,12 +57,12 @@ class PointSet:
 
 
   # Returns distance between two points
-  def calcDist(self, lt1,ln1,lt2,ln2):
+  def calcDist(self, p1,p2):
     # Convert to radians
-    lat1 = radians(lt1)
-    lon1 = radians(ln1)
-    lat2 = radians(lt2)
-    lon2 = radians(ln2)
+    lat1 = radians(p1.lt)
+    lon1 = radians(p1.ln)
+    lat2 = radians(p2.lt)
+    lon2 = radians(p2.ln)
 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
@@ -72,10 +74,11 @@ class PointSet:
 
   # Gets Median Absolute Deviation(MAD)
   def getMAD(self):
-    med_dist=[]
+    med_dist = []
     med = median(self.distances)
     for d in self.distances:
       med_dist.append(abs(d - med))
+
     return median(med_dist)
 
 
@@ -83,65 +86,77 @@ class PointSet:
   def checkDistances(self):  
     if self.getLength() == 0:
           return None
-    temp=[]
+    temp = []
+    temp.append(self.pointSet[0])
+
+    # skip duplicates e.g. points where no distance is covered 
     for i in range(self.getLength()-1):
-      d = self.calcDist(self.pointSet[i].lt,self.pointSet[i].ln,self.pointSet[i+1].lt,self.pointSet[i+1].ln)
-      # skip duplicates e.g. points where no distance is covered 
+      d = self.calcDist(self.pointSet[i],self.pointSet[i+1])
+      
       if d == ZERO_DIST:
         continue
-      # keep track of valid points
-      temp.append(self.pointSet[i])
+
       # store distance to next point within Point obj
       self.pointSet[i].distance = d
       # store all distances between points within PointSet
       self.distances.append(d)
-    self.pointSet = temp
+      # keep track of valid points
+      temp.append(self.pointSet[i])
 
+    self.pointSet = temp[:]
 
-  # Remove timestamps which aren't consecutive
+  # Check for timestamps which aren't consecutive
   def checkTimes(self):
-    cur_low=0
-    temp=[]
+    cur_low = 0
+    temp = []
     for pt in self.pointSet:
       current = pt.timestamp
+      # skip points with bad timestamp
       if (current < cur_low): 
         continue
       cur_low = current
       temp.append(pt)
-    self.pointSet = temp
 
+    self.pointSet = temp[:]
 
   # Remove outlying points
   def removeOutliers(self):
     self.checkTimes()
     self.checkDistances()
 
-    # Will allow us to check if 1 - 1 / k**2 are within MAD range # of median
-    # e.g if k = 2, 1 - 0.25 = .75
-    # This ensures (approx.) 75% are within range 
-    mad = self.getMAD() * CHEBYSHEV_CONST 
+    med = median(self.distances)
+    ab_med_dist = self.getMAD() * CHEBYSHEV_CONST
+    
+    # Add starting point
+    temp = []
+    temp.append(self.pointSet[0])
 
-    med_dist = median(self.distances)
-    temp=[]
-    for pt in self.pointSet:
-      if pt.distance > (med_dist-mad) and pt.distance < (med_dist+mad):
-        temp.append(pt)
-    # Remove all outlying points outside of MAD range    
-    self.pointSet = temp
+    for i in range(0,self.getLength()-1):
+       # if so, add that point
+      d = self.pointSet[i].distance
+      if med-ab_med_dist <= d <= med+ab_med_dist:
+          temp.append(self.pointSet[i+1])
+
+    self.pointSet = temp[:]
 
 
-  # Plot points to show journey
   def plotPoints(self):
-    x=[]
-    y=[]
+    x = []
+    y = []
+    count = 0
     for pt in self.pointSet:
-      y.append(pt.ln)	
-      x.append(pt.lt)
+      y.append(pt.lt)
+      x.append(pt.ln)
+      print("Count: "+str(count) + "  Y:"+ str(pt.lt) + " X:" + str(pt.ln) + "D: " + str(pt.distance))
+      count+=1
     # set options and plot
     mpl.use('Agg')
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111)
-    ax.plot(x,y)
+
+    #ax.plot(x,y) # comment to remove line from plot 
+    plt.scatter(x,y) # comment to remove points from plot
+    
     # Save copy of graph
     timestamp = datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")
     fig.savefig('graphs/Graph-' + timestamp + '.png')
@@ -150,7 +165,8 @@ class PointSet:
   # Print details of algorithm run
   def printPoints(self): # change to printDetails() and add more info
     print("Current count: " + str(self.getLength()))
-    for pt in self.pointSet:
-          print(str(pt.lt)+" "+str(pt.ln))
-    # x = ((self.getLength()/227) * 100)
-    # print("Percentage: {:.2f}%".format(x))
+    #for pt in self.pointSet:
+    #      print(str(pt.lt)+" "+str(pt.ln))
+    x = ((self.getLength()/227) * 100)
+    print(str(self.getLength()) + "/227 points printed") 
+    print("Percentage: {:.2f}%".format(x))

@@ -8,8 +8,7 @@ class TestPointSet(unittest.TestCase):
     TEST_FILE = 'test_data/test_data.csv'
     testPointSet = pointSet.PointSet()
     testPointSet.loadData(TEST_FILE)
-    self.assertEqual(157.27478863265398, \
-    testPointSet.calcDist(testPointSet.pointSet[0].lt,testPointSet.pointSet[0].ln,testPointSet.pointSet[1].lt,testPointSet.pointSet[1].ln))
+    self.assertEqual(157.27478863265398, testPointSet.calcDist(testPointSet.pointSet[0], testPointSet.pointSet[1]))
 
 
   def test_checkDist(self):
@@ -18,7 +17,7 @@ class TestPointSet(unittest.TestCase):
       testPointSet.loadData(TEST_FILE)
       self.assertEqual(5, testPointSet.getLength())
       testPointSet.checkDistances()
-      self.assertEqual(3, testPointSet.getLength())
+      self.assertEqual(4, testPointSet.getLength())
 
 
   def test_getMAD(self):
@@ -26,7 +25,7 @@ class TestPointSet(unittest.TestCase):
     testPointSet = pointSet.PointSet()
     testPointSet.loadData(TEST_FILE)
     testPointSet.checkDistances()  ## change the name of checkDistances()
-    self.assertEqual(1242.324292013906, testPointSet.getMAD())
+    self.assertEqual(0.04789525410973283, testPointSet.getMAD())
 
 
   def test_checkTimes(self):
@@ -51,11 +50,7 @@ class TestPointSet(unittest.TestCase):
     testPointSet.loadData(TEST_FILE)
     testPointSet.removeOutliers()
     testPointSet.printPoints()
-    self.assertEqual(3, testPointSet.getLength())
-
-    # Check various degrees of accuracy, 
-    # percentage results, and correct points found 
-
+    #self.assertEqual(4, testPointSet.getLength())
 
 if __name__ == '__main__':
     unittest.main()
