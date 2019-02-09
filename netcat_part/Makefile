@@ -7,10 +7,10 @@ CFLAGS=-I.
 
 
 %.o: %.c $(HDR)
-		 $(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 nc: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean: 
-		rm -f $(OBJ) nc testdata/results.txt
+	rm -f $(OBJ) nc testdata/results.txt

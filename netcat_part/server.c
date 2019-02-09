@@ -29,7 +29,7 @@ void createServer(nc_args_t *nc_args) {
         connfd = Accept(listenfd, (struct sockaddr *) &clientAddr, &clientAddrLength);
         
         // read data from client and write to file
-        while((bytesRead = read(connfd, buffer, BUF_LEN)) != 0 ) {	
+        while((bytesRead = read(connfd, buffer, BUF_LEN)) != 0 ) {
             totalBytesRead += bytesRead;
             fwrite(buffer, sizeof(BUF_LEN), 1, fp);
             bzero(buffer, BUF_LEN);
@@ -37,9 +37,9 @@ void createServer(nc_args_t *nc_args) {
         printf("Server: %ld bytes written to file '%s'\n", totalBytesRead, nc_args->serverFilename);
 
         // Reset file pointer
-	    fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_SET);
         totalBytesRead = 0;
-	    // Close file and socket
+        // Close file and socket
         fclose(fp);
         close(connfd);
     }

@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
     parse_args(&nc_args, argc, argv);
 
     if (nc_args.listen == 1) {
-		  createServer(&nc_args);
+        createServer(&nc_args);
     } else{
-		  createClient(&nc_args);
-  	}
+        createClient(&nc_args);
+    }
     return 0; 
 }
