@@ -10,7 +10,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#define BUF_LEN 1024				// data buffer length
+#define BUF_LEN 1				    // data buffer length: default 1024
 #define MAXQUEUE 5			        // maximum number of pending client connections 
 
 typedef struct nc_args {
