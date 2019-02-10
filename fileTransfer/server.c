@@ -24,14 +24,14 @@ void createServer(nc_args_t *nc_args) {
     // Open file 
     fp = fopen(nc_args->serverFilename, "w+");
 
-    while(1){
+    for(;;){
         // accept incoming connections
         connfd = Accept(listenfd, (struct sockaddr *) &clientAddr, &clientAddrLength);
         
         // read data from client and write to file
         while((bytesRead = read(connfd, buffer, BUF_LEN)) != 0 ) {
             totalBytesRead += bytesRead;
-            fwrite(buffer, sizeof(BUF_LEN), 1, fp);
+            fwrite(buffer, BUF_LEN, 1, fp); 
             bzero(buffer, BUF_LEN);
         }
         printf("Server: %ld bytes written to file '%s'\n", totalBytesRead, nc_args->serverFilename);

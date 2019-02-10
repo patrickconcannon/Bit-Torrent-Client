@@ -4,7 +4,7 @@
 
 void createClient(nc_args_t *nc_args) {			
     
-    int clientSockfd;
+    int clientSockfd=0, count=1;
     unsigned char buffer[BUF_LEN];
     ssize_t bytesWritten = 0;
     FILE *fp;
@@ -24,8 +24,14 @@ void createClient(nc_args_t *nc_args) {
         if(nc_args->offset != 0){
             fseek(fp, nc_args->offset, SEEK_SET);
         } 
-        while(fread(buffer, sizeof(BUF_LEN), 1, fp)) {
+        if(nc_args->n_bytes != 0){ // check if n_bytes specified
+            count=nc_args->n_bytes;
+        }
+        while(fread(buffer, BUF_LEN, count, fp)) { 
             bytesWritten += Write(clientSockfd, buffer, BUF_LEN);
+            if(nc_args->n_bytes){ //check for remaining bytes
+                count--;
+            }
         }
         printf("Client: %ld bytes sent to server\n", bytesWritten);
     }else {
