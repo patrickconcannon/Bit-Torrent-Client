@@ -34,8 +34,8 @@ In here you will find the structure and outline of how this program will work
 nc [OPTIONS] dest_ip [file]
 	 -h          		 Print this help screen
 	 -p port     		 Set the port to connect on (dflt: 6767)
-	 -m maintain     Maintain offset from previous data transfer
-   -n bytes    		 Number of bytes to send - defaults to entire file
+	 -m maintain     	 Maintain offset from previous data transfer
+   	 -n bytes    		 Number of bytes to send - defaults to entire file
 	 -o offset   		 Offset into file to begin sending
 	 -l          		 Create listen server with specified address
    
